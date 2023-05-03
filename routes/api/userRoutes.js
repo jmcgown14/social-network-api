@@ -6,18 +6,18 @@ const {
   deleteUser,
   addFriend,
   removeFriend,
-} = require('../../controllers/studentController');
+} = require('../../controllers/userController');
 
 // /api/user
-router.route('/').get(getStudents).post(createStudent);
+router.route('/').get(getUser).post(createUser);
 
 // /api/user/:userId
-router.route('/:studentId').get(getSingleStudent).delete(deleteStudent);
+router.route('/:userId').get(getSingleUser).delete(deleteUser);
 
-// /api/students/:studentId/assignments
-router.route('/:studentId/assignments').post(addAssignment);
+// /api/user/:userId/friends
+router.route('/:userId/assignments').post(addFriend);
 
-// /api/students/:studentId/assignments/:assignmentId
-router.route('/:studentId/assignments/:assignmentId').delete(removeAssignment);
+// /api/user/:userId/assignments/:assignmentId
+router.route('/:userId/assignments/:assignmentId').delete(removeFriend);
 
 module.exports = router;
