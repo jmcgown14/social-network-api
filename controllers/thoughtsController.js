@@ -1,71 +1,124 @@
-const { Course, Student } = require('../models');
+const { Thought, User } = require("../Models");
 
-module.exports = {
-  // Get all courses
-  async getCourses(req, res) {
-    try {
-      const courses = await Course.find();
-      res.json(courses);
-    } catch (err) {
-      res.status(500).json(err);
-    }
+const thoughtController = {
+  // GET all thoughts
+  getAllThoughts(req, res) {
+    Thought.find({})
+      .populate({
+        path: "thoughts",
+      })
+      .sort({ _id: -1 })
+      .then((dbUserData) => res.json(dbUserData))
+      .catch((err) => {
+        res.status(400).json(err);
+      });
   },
-  // Get a course
-  async getSingleCourse(req, res) {
-    try {
-      const course = await Course.findOne({ _id: req.params.courseId })
-        .select('-__v');
-
-      if (!course) {
-        return res.status(404).json({ message: 'No course with that ID' });
-      }
-
-      res.json(course);
-    } catch (err) {
-      res.status(500).json(err);
-    }
+  //   GET single thought by _id
+  getThoughtById({ params }, res) {
+    Thought.findOne({ _id: params.thoughtId })
+      .populate({
+        path: "thoughts",
+      })
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          res.status(404).json({ message: "No thought found by that id!" });
+          return;
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
   },
-  // Create a course
-  async createCourse(req, res) {
-    try {
-      const course = await Course.create(req.body);
-      res.json(course);
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json(err);
-    }
+  //   POST to create new thought
+  addThought({ params, body }, res) {
+    Thought.create(body)
+      .then(({ _id }) => {
+        console.log(_id);
+        return User.findOneAndUpdate(
+          { _id: body.userId },
+          { $push: { thoughts: _id } },
+          { new: true }
+        );
+      })
+      .then((dbUserData) => {
+        console.log(dbUserData);
+        if (!dbUserData) {
+          res.status(404).json({ message: "No user found with this id!" });
+          return;
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => res.json(err));
   },
-  // Delete a course
-  async deleteCourse(req, res) {
-    try {
-      const course = await Course.findOneAndDelete({ _id: req.params.courseId });
-
-      if (!course) {
-        return res.status(404).json({ message: 'No course with that ID' });
-      }
-
-      await Student.deleteMany({ _id: { $in: course.students } });
-      res.json({ message: 'Course and students deleted!' });
-    } catch (err) {
-      res.status(500).json(err);
-    }
+  //   PUT to update thought by _id
+  updateThought({ params, body }, res) {
+    console.log(params.thoughtId);
+    console.log(body);
+    Thought.findOneAndUpdate({ _id: params.thoughtId }, body, {
+      new: true,
+      runValidators: true,
+    })
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          res.status(404).json({ message: "No thought found with this id!" });
+          return;
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => res.status(400).json(err));
   },
-  // Update a course
-  async updateCourse(req, res) {
-    try {
-      const course = await Course.findOneAndUpdate(
-        { _id: req.params.courseId },
-        { $set: req.body },
-        { runValidators: true, new: true }
-      );
 
-      if (!course) {
-        return res.status(404).json({ message: 'No course with this id!' });
-      }
-
-      res.json(course);
-    } catch (err) {
-      res.status(500).json(err);
-    }
+  // DELETE to remove thought by _id
+  removeThought({ params }, res) {
+    Thought.findOneAndDelete({ _id: params.thoughtId })
+      .then((deletedThought) => {
+        if (!deletedThought) {
+          return res.status(404).json({ message: "No thought with this id!" });
+        }
+        console.log(deletedThought);
+        User.findOneAndUpdate(
+          { username: deletedThought.username },
+          { $pull: { thoughts: params.thoughtId } },
+          { new: true }
+        ).then((dbUserData) => {
+          if (!dbUserData) {
+            res.status(404).json({ message: "No user found with this id!" });
+            return;
+          }
+          res.json(dbUserData);
+        });
+      })
+      .catch((err) => res.json(err));
+  },
+  //   POST to create reaction
+  addReaction({ params, body }, res) {
+    Thought.findOneAndUpdate(
+      { _id: params.thoughtId },
+      { $push: { reactions: body } },
+      { new: true, runValidators: true }
+    )
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          res.status(404).json({ message: "No user found with this id!" });
+          return;
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => res.json(err));
+  },
+  // DELETE to pull and remove reaction by reaction's reactionId
+  removeReaction({ params }, res) {
+    Thought.findOneAndUpdate(
+      { _id: params.thoughtId },
+      // remove specific reply from replies array
+      // where replyId matches value of params.replyId passed in from route
+      { $pull: { reactions: { reactionId: params.reactionId } } },
+      { new: true }
+    )
+      .then((dbUserData) => res.json(dbUserData))
+      .catch((err) => res.json(err));
   },
 };
+
+module.exports = thoughtController;
