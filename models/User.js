@@ -1,9 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-// Schema to create User model
-const mongoose = require('mongoose');
-
-const UserSchema = new mongoose.Schema(
+const UserSchema = new Schema(
   {
     username: {
       type: String,
@@ -18,11 +15,11 @@ const UserSchema = new mongoose.Schema(
       match: /^\S+@\S+\.\S+$/
     },
     thoughts: [{
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Thought'
     }],
     friends: [{
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User'
     }]
   },
@@ -39,7 +36,7 @@ UserSchema.virtual('friendCount').get(function () {
   return this.friends.length;
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = model('User', UserSchema);
 
 module.exports = User;
 
