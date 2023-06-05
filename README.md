@@ -23,5 +23,6 @@ THEN I am able to successfully create and delete reactions to thoughts and add a
 ```
 
 [Github Repo] (https://github.com/jmcgown14/social-network-api)
+[Video Demonstartion](https://drive.google.com/file/d/1MWFGHcN0NpHC3nRGLxSwY2MBsj2gIs17/view) *will be taken down in 2 weeks*
 
 Worked in Collaboartion with Katherine Reiner.
