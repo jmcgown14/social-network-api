@@ -13,8 +13,11 @@ const {
 // /api/thoughts/
 router.route("/").get(getAllThoughts).post(addThought);
 
-// /api/thoughts/:id
+// // /api/thoughts/:id
+// router.route("/:thoughtId").get(getThoughtById).put(updateThought).delete(removeThought);
+// /api/thoughts/:thoughtId
 router.route("/:thoughtId").get(getThoughtById).put(updateThought).delete(removeThought);
+
 
 // /api/thoughts/:thoughtId/reactions
 router.route("/:thoughtId/reactions").post(addReaction);

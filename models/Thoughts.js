@@ -6,7 +6,6 @@ const ThoughtSchema = new Schema(
   {
     thoughtText: {
       type: String,
-      required: "What is your thought?",
       minlength: 1,
       maxlength: 280,
     },
@@ -16,8 +15,9 @@ const ThoughtSchema = new Schema(
       get: (timestamp) => dateFormat(timestamp),
     },
     username: {
-      type: String,
-      required: true,
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
     },
     reactions: [reactionSchema],
   },

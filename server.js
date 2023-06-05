@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3001;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(require('./Routes'));
+app.use(require('./routes'));
 
 connection.once('open', () => {
     app.listen(PORT, () => {
